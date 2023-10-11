@@ -32,7 +32,14 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity mucodec is
---  Port ( );
+    Port ( din : in std_logic_vector(2 downto 0);
+           valid : in std_logic;
+           clr : in std_logic;
+           clk : in std_logic;
+           
+           dout : out std_logic_vector(7 downto 0);
+           dvalid : out std_logic;
+           error : out std_logic  );
 end mucodec;
 
 architecture Behavioral of mucodec is
