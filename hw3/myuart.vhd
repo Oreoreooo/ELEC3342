@@ -46,12 +46,13 @@ architecture rtl of myuart is
 type state_type is (Idle, Start, D0,D1,D2,D3,D4,D5,D6,D7,Stop);
 signal state, next_state: state_type;
 signal cnt: unsigned(4 downto 0);
+signal baud: std_logic;
                                               
 
 begin
     process (clk,clr)
     begin
-        if clr = '1' then
+        if (clr = '1') then
             state <= Idle;
             --busy <= '0';
             --sout <= '1';
@@ -66,104 +67,86 @@ begin
             when Idle =>
                 busy <= '0';
                 sout <= '1';
-                if wen = '1' then
+                if (wen = '1') then
                     next_state <= Start;
-                    cnt <= (others => '0');
                     
                 end if;
            when Start =>
                 busy <= '1';
                 sout <= '0';
-                if cnt  <= "1010" then
-                   cnt <=(others => '0');
-                   next_state <= D0;
-                else
-                  cnt <= cnt + 1;
+                if (to_integer(cnt) = 9) then
+                    next_state <= D0; 
                 end if;
            when D0 =>
                 busy <='1';
                 sout <= din(0);
-                if cnt <= "1010" then
-                    cnt <= (others => '0');
+                if (to_integer(cnt) = 9) then  
                     next_state <= D1;
-                else
-                    cnt <= cnt + 1;
                 end if;
           when D1 =>
                 busy <= '1';
                 sout <= din(1);
-                if cnt <= "1010" then
-                    cnt <=(others => '0');
+                if (to_integer(cnt) = 9) then 
                     next_state <= D2;
-                else 
-                    cnt <= cnt + 1;
-                end if;
+               end if;
          when D2 =>
                busy <= '1';
                sout <= din(2);
-               if cnt <= "1010" then
-                   cnt <= (others => '0');
+               if (to_integer(cnt) = 9) then 
                    next_state <= D3;
-               else 
-                   cnt <= cnt + 1;
-               end if;
+              end if;
          when D3 =>
               busy <= '1';
               sout <= din(3);
-              if cnt <= "1010" then
-                cnt <= (others => '0');
+              if (to_integer(cnt) = 9) then 
                 next_state <= D4 ;
-              else 
-                cnt <= cnt + 1;
               end if;
          when D4 =>
               busy <= '1';
               sout <= din(4);
-              if cnt <= "1010" then
-                cnt <= (others => '0');
-                next_state <= D5;
-              else
-                cnt <= cnt + 1;
-             end if;
+              if (to_integer(cnt) = 9) then 
+                 next_state <= D5;
+              end if;
          when D5 =>
               busy <= '1';
               sout <= din(5);
-              if cnt <= "1010" then
-                cnt <= (others => '0');
+              if (to_integer(cnt) = 9) then 
                 next_state <= D6;
-              else 
-                cnt <= cnt + 1;
               end if;
          when D6 =>
               busy <= '1';
               sout <= din(6);
-              if cnt <= "1010" then
-                cnt <= (others => '0');
+              if (to_integer(cnt) = 9) then
                 next_state <= D7;
-              else
-                cnt <= cnt + 1;
               end if;
          when D7 =>
               busy <= '1';
               sout <= din(7);
-              if cnt <= "1010" then
-                cnt <= (others => '0');
+              if (to_integer(cnt) = 9) then 
                 next_state <= Stop;
-             else
-                cnt <= cnt + 1;
              end if;
          when Stop =>
              sout <= '1';
-             if cnt <= "1010" then
-                cnt <= (others => '0');
+             if (to_integer(cnt) = 9) then 
                 next_state <= Idle;
+            end if;
+        end case;
+    end process;    
+    
+    process (clk,clr)
+    begin
+        if clr = '1' then
+            cnt <= (others => '0');
+        elsif (rising_edge(clk)) then
+            if state = Idle or to_integer(cnt) = 9 then
+                cnt <= (others => '0');
             else 
                 cnt <= cnt + 1;
             end if;
-        end case;
-    end process;                                        
-                                    
-                                      
-                             
-                           
+        end if;
+    end process;
+    
+   
+            
+                                     
 end rtl;
